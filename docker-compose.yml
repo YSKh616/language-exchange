@@ -1,4 +1,4 @@
-version: '2'
+version: '3.4'
 services:
   db:
     image: mysql:5.7.17
@@ -6,22 +6,18 @@ services:
       - "3306:3306"
     volumes:
       - ./docker/mysql/volumes:/var/lib/mysql
-    extends:
-      file: ./docker/mysql/password.yml
-      service: password
+    env_file: .env.dev
   web:
     build:
       context: .
       dockerfile: ./docker/rails/Dockerfile
-    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
     ports:
       - "3000:3000"
     volumes:
       - .:/myapp
     environment:
       RAILS_ENV: development
-    extends:
-      file: ./docker/mysql/password.yml
-      service: password
+    env_file: .env.dev
     depends_on:
       - db
